@@ -99,16 +99,15 @@ class AVLTree:
         return node_count_helper(self.root)
 
     def comparison_count(self):
-        return self.comparison_count_helper(self.root)
+        def comparison_count_helper(node):
+            if node is None:
+                return 0
+            left_count = comparison_count_helper(node.left)
+            right_count = comparison_count_helper(node.right)
+            total_count = left_count + right_count + node.comparison_count
+            return total_count
 
-    def comparison_count_helper(self, node):
-        if node is None:
-            return 0
-        left_count = self.comparison_count_helper(node.left)
-        right_count = self.comparison_count_helper(node.right)
-        total_count = left_count + right_count + node.comparison_count
-        return total_count
-
+        return comparison_count_helper(self.root)
     def rotation_count(self):
         return self.left_rotations + self.right_rotations
 
