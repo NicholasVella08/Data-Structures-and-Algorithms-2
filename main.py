@@ -85,10 +85,10 @@ class AVLTree:
             return 0
         return self.height(node.left) - self.height(node.right)
 
-    def height(self):
-        if self is None:
-            return 0
-        return self.height
+    def height(self, node):
+        if node is None:
+            return -1
+        return node.height
 
     def node_count(self):
         def node_count_helper(node):
@@ -99,12 +99,15 @@ class AVLTree:
         return node_count_helper(self.root)
 
     def comparison_count(self):
-        def comparison_count_helper(node):
-            if node is None:
-                return 0
-            return comparison_count_helper(node.left) + comparison_count_helper(node.right) + node.comparison_count
+        return self.comparison_count_helper(self.root)
 
-        return comparison_count_helper(self.root)
+    def comparison_count_helper(self, node):
+        if node is None:
+            return 0
+        left_count = self.comparison_count_helper(node.left)
+        right_count = self.comparison_count_helper(node.right)
+        total_count = left_count + right_count + node.comparison_count
+        return total_count
 
     def rotation_count(self):
         return self.left_rotations + self.right_rotations
@@ -116,10 +119,14 @@ class RedBlackTree:
             self.val = val
             self.left = None
             self.right = None
+            self.height = 1
             self.color = "RED"  # new nodes are always colored RED
+            self.comparison_count = 0  # initialize comparison count to 0
 
     def __init__(self):
         self.root = None
+        self.left_rotations = 0  # initialize left rotation count to 0
+        self.right_rotations = 0  # initialize right rotation count to 0
 
     def insert(self, val):
         # create new node with given value and insert it in the tree
@@ -198,8 +205,9 @@ class RedBlackTree:
     def height(self):
         def height_helper(node):
             if node is None:
-                return 0
-            return node.height
+                return -1
+            else:
+                return max(height_helper(node.left), height_helper(node.right)) + 1
 
         return height_helper(self.root)
 
@@ -324,9 +332,6 @@ for val in X:
 #in_order_traversal(bst.root)
 
 
-print(f"AVL: {avl_tree.rotation_count()} tot. rotations req., height is {avl_tree.height()}, "
-      f"#nodes is {avl_tree.node_count()}, #comparisons is {avl_tree.comparison_count()}.")
-print(f"RBT: {rb_tree.rotation_count()} tot. rotations req., height is {rb_tree.height()}, "
-      f"#nodes is {rb_tree.node_count()}, #comparisons is {rb_tree.comparison_count()}.")
-print(f"BST: height is {bst.height()}, #nodes is {bst.node_count()}, "
-      f"#comparisons is {bst.comparison_count()}.")
+print(f"AVL: {avl_tree.rotation_count()} tot. rotations req., height is {avl_tree.height(avl_tree.root)}, #nodes is {avl_tree.node_count()}, #comparisons is {avl_tree.comparison_count()}.")
+print(f"RBT: {rb_tree.rotation_count()} tot. rotations req., height is {rb_tree.height()}, #nodes is {rb_tree.node_count()}, #comparisons is {rb_tree.comparison_count()}.")
+print(f"BST: height is {bst.height()}, #nodes is {bst.node_count()}, #comparisons is {bst.comparison_count()}.")
