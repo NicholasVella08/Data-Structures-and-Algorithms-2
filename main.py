@@ -12,7 +12,6 @@ class TreeNode:
         self.right = None
         self.height = 1
 
-# AVL tree
 class AVLTree:
     class Node:
         def __init__(self, val):
@@ -35,8 +34,10 @@ class AVLTree:
             return self.Node(val)
         if val < node.val:
             node.left = self.insert_helper(node.left, val)
+            node.comparison_count += 1  # increment comparison count
         else:
             node.right = self.insert_helper(node.right, val)
+            node.comparison_count += 1  # increment comparison count
 
         node.height = 1 + max(self.height(node.left), self.height(node.right))
 
@@ -57,6 +58,57 @@ class AVLTree:
             return self.left_rotate(node)
 
         return node
+
+
+    def delete(self, val):
+        self.root = self.delete_helper(self.root, val)
+
+    def delete_helper(self, node, val):
+        if node is None:
+            return None
+
+        if val < node.val:
+            node.left = self.delete_helper(node.left, val)
+        elif val > node.val:
+            node.right = self.delete_helper(node.right, val)
+        else:
+            if node.left is None:
+                return node.right
+            elif node.right is None:
+                return node.left
+
+            min_right = self.find_min(node.right)
+            node.val = min_right.val
+            node.right = self.delete_helper(node.right, min_right.val)
+
+        if node is None:
+            return None
+
+        node.height = 1 + max(self.height(node.left), self.height(node.right))
+
+        balance_factor = self.balance_factor(node)
+
+        if balance_factor > 1 and self.balance_factor(node.left) >= 0:
+            return self.right_rotate(node)
+
+        if balance_factor < -1 and self.balance_factor(node.right) <= 0:
+            return self.left_rotate(node)
+
+        if balance_factor > 1 and self.balance_factor(node.left) < 0:
+            node.left = self.left_rotate(node.left)
+            return self.right_rotate(node)
+
+        if balance_factor < -1 and self.balance_factor(node.right) > 0:
+            node.right = self.right_rotate(node.right)
+            return self.left_rotate(node)
+
+        return node
+
+    def find_min(self, node):
+        while node.left is not None:
+            node = node.left
+        return node
+
 
     def left_rotate(self, node):
         self.left_rotations += 1
@@ -98,7 +150,7 @@ class AVLTree:
 
         return node_count_helper(self.root)
 
-    def comparison_count(self):
+    def get_comparison_count(self):
         def comparison_count_helper(node):
             if node is None:
                 return 0
@@ -108,6 +160,7 @@ class AVLTree:
             return total_count
 
         return comparison_count_helper(self.root)
+
     def rotation_count(self):
         return self.left_rotations + self.right_rotations
 
@@ -147,10 +200,15 @@ class RedBlackTree:
         # fix violations of the red-black tree properties
         if self.is_red(node.right) and not self.is_red(node.left):
             node = self.rotate_left(node)
+            self.left_rotations += 1
         if self.is_red(node.left) and self.is_red(node.left.left):
             node = self.rotate_right(node)
+            self.right_rotations += 1
         if self.is_red(node.left) and self.is_red(node.right):
             self.flip_colors(node)
+
+        # increment comparison count
+        node.comparison_count += 1
 
         return node
 
@@ -201,6 +259,59 @@ class RedBlackTree:
         else:
             return self.find_helper(node.right, val)
 
+    def delete(self, val):
+        # delete node with given value from the tree, if it exists
+        self.root = self.delete_helper(self.root, val)
+        # color the root node BLACK to satisfy property 2
+        self.root.color = "BLACK"
+
+    def delete_helper(self, node, val):
+        # base case: node is None, value not found in the tree
+        if node is None:
+            return None
+
+        # recursively search for node with given value in the tree
+        if val < node.val:
+            node.left = self.delete_helper(node.left, val)
+        elif val > node.val:
+            node.right = self.delete_helper(node.right, val)
+        else:
+            # case 1: node has no children
+            if node.left is None and node.right is None:
+                return None
+
+            # case 2: node has one child
+            if node.left is None:
+                return node.right
+            if node.right is None:
+                return node.left
+
+            # case 3: node has two children
+            successor = self.get_successor(node.right)
+            node.val = successor.val
+            node.right = self.delete_helper(node.right, successor.val)
+
+        # fix violations of the red-black tree properties
+        if self.is_red(node.right) and not self.is_red(node.left):
+            node = self.rotate_left(node)
+            self.left_rotations += 1
+        if self.is_red(node.left) and self.is_red(node.left.left):
+            node = self.rotate_right(node)
+            self.right_rotations += 1
+        if self.is_red(node.left) and self.is_red(node.right):
+            self.flip_colors(node)
+
+        # increment comparison count
+        node.comparison_count += 1
+
+        return node
+
+    def get_successor(self, node):
+        # find the node with the smallest value in the right subtree of node
+        while node.left is not None:
+            node = node.left
+        return node
+
     def height(self):
         def height_helper(node):
             if node is None:
@@ -250,6 +361,35 @@ class BinarySearchTree:
             node.left = self.insert_helper(node.left, val)
         else:
             node.right = self.insert_helper(node.right, val)
+        return node
+
+    def delete(self, val):
+        self.root = self.delete_helper(self.root, val)
+
+    def delete_helper(self, node, val):
+        if node is None:
+            return None
+        elif val < node.val:
+            node.left = self.delete_helper(node.left, val)
+        elif val > node.val:
+            node.right = self.delete_helper(node.right, val)
+        else:
+            if node.left is None:
+                return node.right
+            elif node.right is None:
+                return node.left
+            else:
+                # Find the minimum value in the right subtree
+                min_node = node.right
+                while min_node.left is not None:
+                    min_node = min_node.left
+
+                # Replace the node's value with the minimum value
+                node.val = min_node.val
+
+                # Delete the minimum node in the right subtree
+                node.right = self.delete_helper(node.right, min_node.val)
+
         return node
 
     def height(self):
@@ -330,7 +470,101 @@ for val in X:
 #print("Binary Search Tree:")
 #in_order_traversal(bst.root)
 
+print()
 
-print(f"AVL: {avl_tree.rotation_count()} tot. rotations req., height is {avl_tree.height(avl_tree.root)}, #nodes is {avl_tree.node_count()}, #comparisons is {avl_tree.comparison_count()}.")
+print(f"AVL: {avl_tree.rotation_count()} tot. rotations req., height is {avl_tree.height(avl_tree.root)}, #nodes is {avl_tree.node_count()}, #comparisons is {avl_tree.get_comparison_count()}.")
 print(f"RBT: {rb_tree.rotation_count()} tot. rotations req., height is {rb_tree.height()}, #nodes is {rb_tree.node_count()}, #comparisons is {rb_tree.comparison_count()}.")
 print(f"BST: height is {bst.height()}, #nodes is {bst.node_count()}, #comparisons is {bst.comparison_count()}.")
+
+for val in Y:
+    avl_tree.delete(val)
+    rb_tree.delete(val)
+    bst.delete(val)
+
+# Outputting search trees after deletion
+#print("AVL Tree:")
+#in_order_traversal(avl_tree.root)
+
+#print("RB Tree:")
+#in_order_traversal(rb_tree.root)
+
+
+#print("BST Tree:")
+#in_order_traversal(bst.root)
+
+print()
+print(f"AVL: {avl_tree.rotation_count()} tot. rotations req., height is {avl_tree.height(avl_tree.root)}, #nodes is {avl_tree.node_count()}, #comparisons is {avl_tree.get_comparison_count()}.")
+print(f"RBT: {rb_tree.rotation_count()} tot. rotations req., height is {rb_tree.height()}, #nodes is {rb_tree.node_count()}, #comparisons is {rb_tree.comparison_count()}.")
+print(f"BST: height is {bst.height()}, #nodes is {bst.node_count()}, #comparisons is {bst.comparison_count()}.")
+
+found_count = 0
+not_found_count = 0
+total_comparisons = 0
+
+for val in Z:
+    node = avl_tree.root
+    comparisons = 0
+    while node is not None:
+        comparisons += 1
+        if val == node.val:
+            found_count += 1
+            break
+        elif val < node.val:
+            node = node.left
+        else:
+            node = node.right
+    if node is None:
+        not_found_count += 1
+    total_comparisons += comparisons
+
+# Print results
+print()
+print("AVL:")
+print(f"Total comparisons required: {total_comparisons}")
+print(f"Numbers found: {found_count}")
+print(f"Numbers not found: {not_found_count}")
+
+total_comparisons = 0
+found_count = 0
+not_found_count = 0
+
+for val in Z:
+    node = rb_tree.find(val)
+    if node is not None:
+        total_comparisons += node.comparison_count
+        found_count += 1
+    else:
+        total_comparisons += rb_tree.root.comparison_count
+        not_found_count += 1
+
+print()
+print("RBT:")
+print(f"Total comparisons required: {total_comparisons}")
+print(f"Numbers found: {found_count}")
+print(f"Numbers not found: {not_found_count}")
+
+total_comparisons = 0
+found_count = 0
+not_found_count = 0
+
+for val in Z:
+    current = bst.root
+    comparisons = 0
+    while current is not None:
+        comparisons += 1
+        if current.val == val:
+            found_count += 1
+            total_comparisons += comparisons
+            break
+        elif val < current.val:
+            current = current.left
+        else:
+            current = current.right
+    else:
+        not_found_count += 1
+
+print()
+print("BST:")
+print(f"Total comparisons required: {total_comparisons}")
+print(f"Numbers found: {found_count}")
+print(f"Numbers not found: {not_found_count}")
