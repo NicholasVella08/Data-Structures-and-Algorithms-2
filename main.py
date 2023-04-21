@@ -341,6 +341,81 @@ class RedBlackTree:
         return self.left_rotations + self.right_rotations
 
 
+# class BinarySearchTree:
+#     class Node:
+#         def __init__(self, val):
+#             self.left = None
+#             self.right = None
+#             self.val = val
+#
+#     def __init__(self):
+#         self.root = None
+#
+#     def insert(self, val):
+#         self.root = self.insert_helper(self.root, val)
+#
+#     def insert_helper(self, node, val):
+#         if node is None:
+#             return self.Node(val)
+#         elif val < node.val:
+#             node.left = self.insert_helper(node.left, val)
+#         else:
+#             node.right = self.insert_helper(node.right, val)
+#         return node
+#
+#     def delete(self, val):
+#         self.root = self.delete_helper(self.root, val)
+#
+#     def delete_helper(self, node, val):
+#         if node is None:
+#             return None
+#         elif val < node.val:
+#             node.left = self.delete_helper(node.left, val)
+#         elif val > node.val:
+#             node.right = self.delete_helper(node.right, val)
+#         else:
+#             if node.left is None:
+#                 return node.right
+#             elif node.right is None:
+#                 return node.left
+#             else:
+#                 # Find the minimum value in the right subtree
+#                 min_node = node.right
+#                 while min_node.left is not None:
+#                     min_node = min_node.left
+#
+#                 # Replace the node's value with the minimum value
+#                 node.val = min_node.val
+#
+#                 # Delete the minimum node in the right subtree
+#                 node.right = self.delete_helper(node.right, min_node.val)
+#
+#         return node
+#
+#     def height(self):
+#         def height_helper(node):
+#             if node is None:
+#                 return 0
+#             return max(height_helper(node.left), height_helper(node.right)) + 1
+#
+#         return height_helper(self.root)
+#
+#     def node_count(self):
+#         def node_count_helper(node):
+#             if node is None:
+#                 return 0
+#             return node_count_helper(node.left) + node_count_helper(node.right) + 1
+#
+#         return node_count_helper(self.root)
+#
+#     def comparison_count(self):
+#         def comparison_count_helper(node):
+#             if node is None:
+#                 return 0
+#             return comparison_count_helper(node.left) + comparison_count_helper(node.right) + 1
+#
+#         return comparison_count_helper(self.root)
+
 class BinarySearchTree:
     class Node:
         def __init__(self, val):
@@ -352,24 +427,51 @@ class BinarySearchTree:
         self.root = None
 
     def insert(self, val):
-        self.root = self.insert_helper(self.root, val)
+        if self.root is None:
+            self.root = self.Node(val)
+            return
 
-    def insert_helper(self, node, val):
-        if node is None:
-            return self.Node(val)
-        elif val < node.val:
-            node.left = self.insert_helper(node.left, val)
-        else:
-            node.right = self.insert_helper(node.right, val)
-        return node
+        curr = self.root
+        while curr.right is not None:
+            curr = curr.right
+
+        curr.right = self.Node(val)
 
     def delete(self, val):
-        self.root = self.delete_helper(self.root, val)
+        while self.root and self.root.val == val:
+            self.root = self.delete_helper(self.root, val)
+
+        parent = None
+        curr = self.root
+        while curr:
+            if curr.val == val:
+                if curr.left is None:
+                    if curr == parent.left:
+                        parent.left = curr.right
+                    else:
+                        parent.right = curr.right
+                elif curr.right is None:
+                    if curr == parent.left:
+                        parent.left = curr.left
+                    else:
+                        parent.right = curr.left
+                else:
+                    min_node = curr.right
+                    while min_node.left:
+                        min_node = min_node.left
+                    curr.val = min_node.val
+                    curr = self.delete_helper(curr, min_node.val)
+            parent = curr
+            if curr:
+                if curr.val > val:
+                    curr = curr.left
+                else:
+                    curr = curr.right
 
     def delete_helper(self, node, val):
         if node is None:
             return None
-        elif val < node.val:
+        if val < node.val:
             node.left = self.delete_helper(node.left, val)
         elif val > node.val:
             node.right = self.delete_helper(node.right, val)
@@ -379,17 +481,11 @@ class BinarySearchTree:
             elif node.right is None:
                 return node.left
             else:
-                # Find the minimum value in the right subtree
                 min_node = node.right
-                while min_node.left is not None:
+                while min_node.left:
                     min_node = min_node.left
-
-                # Replace the node's value with the minimum value
                 node.val = min_node.val
-
-                # Delete the minimum node in the right subtree
                 node.right = self.delete_helper(node.right, min_node.val)
-
         return node
 
     def height(self):
@@ -467,8 +563,8 @@ for val in X:
 #print("RB Tree:")
 #in_order_traversal(rb_tree.root)
 
-#print("Binary Search Tree:")
-#in_order_traversal(bst.root)
+print("Binary Search Tree:")
+in_order_traversal(bst.root)
 
 print()
 
