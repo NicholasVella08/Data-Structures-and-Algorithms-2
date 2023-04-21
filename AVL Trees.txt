@@ -1,0 +1,18 @@
+AVL Trees:
+•	-Require more frequent rebalancing compared to Red-Black trees
+•	Guaranteed to maintain a height balance factor of at most 1
+•	Have a worst-case time complexity of O(log n) for search, insertion, and deletion 	operations
+•	Can be more memory-intensive compared to Red-Black trees due to the need to store a 	balance factor at each node
+•	Generally faster than Red-Black trees for search-intensive applications
+Red-Black Trees:
+•	More efficient in terms of memory usage compared to AVL trees
+•	Slightly slower than AVL trees for search-intensive applications due to the more relaxed 	height balance factor (at most 2)
+•	Easier to implement compared to AVL trees
+•	Have a worst-case time complexity of O(log n) for search, insertion, and deletion 	operations
+•	Generally preferred over AVL trees for general-purpose use due to the better balance 	between performance and memory usage
+Unbalanced BSTs:
+•	-Simplest form of binary search tree, but not self-balancing
+•	Can have a worst-case time complexity of O(n) for search, insertion, and deletion 	operations
+•	Not suitable for large datasets or search-intensive applications
+•	Memory-efficient, but can suffer from poor performance in certain cases
+•	Useful for small datasets or when the cost of rebalancing outweighs the benefits of a 	self-balancing tree
